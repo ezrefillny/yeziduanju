@@ -1,6 +1,6 @@
 # Deployment
 
-The browser frontend is prepared for Vercel. The streaming backend needs a persistent Node.js host with FFmpeg; its Dockerfile is included. No service has been provisioned or published.
+The browser frontend is prepared for Vercel. The included Dockerfile packages the Node.js streaming backend with FFmpeg.
 
 ## Local configuration
 
@@ -22,7 +22,7 @@ Run the supplied Docker container on a persistent Linux host. It runs Node.js wi
 
 Use `docker compose up --build -d` for the included container setup. Access the local website at `http://localhost:4173`. Compose uses `HOST` and `PORT` for the published host port. The container listens on `0.0.0.0:4173` and stores data in the named volume mounted at `/app/data`. A reverse proxy on the same host can use the default loopback binding. Restrict access to trusted users at your HTTPS proxy before exposing the service publicly: the worker uses real CPU, storage, and upstream requests.
 
-1080p is offered when supplied by the upstream title. Higher resolutions need more transcoding capacity; benchmark the actual host before increasing worker concurrency. English/Chinese changes interface text; episode audio and titles remain as supplied by the source.
+1080p is offered when supplied by the upstream title. On a memory-limited host, start with `MEDIA_WORKERS=1` and `FFMPEG_THREADS=1`. Benchmark the actual host before increasing worker concurrency. English/Chinese changes interface text. Episode audio and titles remain as supplied by the source.
 
 ## Verification before publishing
 

@@ -29,6 +29,7 @@ const IMAGE_WORKERS = envInteger('IMAGE_WORKERS', 4, 2, 6);
 const MAX_JOBS = envInteger('MAX_CACHE_JOBS', 24, 4, 100);
 const TTL = envInteger('CACHE_TTL_SECONDS', 3600, 60, 604800) * 1000;
 const ENCODE_TIMEOUT = envInteger('ENCODE_TIMEOUT_MS', 900_000, 1000, 3_600_000);
+const FFMPEG_THREADS = String(envInteger('FFMPEG_THREADS', 0, 0, 16));
 const origins = (process.env.ALLOWED_ORIGINS || '').split(',').map((v) => v.trim()).filter(Boolean);
 
 await mkdir(MEDIA, { recursive: true });
@@ -429,7 +430,10 @@ async function refreshJobManifest(job) {
 
 function encode(job, source, pb, key, targetHeight, streamH) {
   return new Promise((resolve, reject) => {
-    const args = ['-hide_banner', '-nostdin', '-loglevel', 'error', '-y', '-rw_timeout', '30000000'];
+    const args = [
+      '-hide_banner', '-nostdin', '-loglevel', 'error', '-y',
+      '-filter_threads', FFMPEG_THREADS, '-rw_timeout', '30000000', '-threads', FFMPEG_THREADS,
+    ];
     if (key) args.push('-decryption_key', key);
     args.push('-i', source);
     if (pb.audio_url) {
@@ -449,6 +453,8 @@ function encode(job, source, pb, key, targetHeight, streamH) {
     args.push(
       '-c:v',
       'libx264',
+      '-threads:v',
+      FFMPEG_THREADS,
       '-preset',
       process.env.ENCODER_PRESET || 'ultrafast',
       '-crf',
@@ -523,12 +529,18 @@ function encode(job, source, pb, key, targetHeight, streamH) {
       reject(e);
     });
 
-    child.on('close', async (code) => {
+    child.on('close', async (code, signal) => {
       cleanup();
       await refreshJobManifest(job);
       if (code === 0 && job.manifestText) {
         resolve();
       } else {
+        const diagnostic = stderr
+          .replace(/https?:\/\/\S+/gi, '[media URL]')
+          .replace(/\b[\da-f]{32,}\b/gi, '[redacted]')
+          .trim()
+          .slice(-600);
+        console.warn('[ffmpeg]', job.id, signal || code, diagnostic || 'No output manifest');
         reject(
           err(
             stderr.includes('404')
