@@ -1,0 +1,913 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0e1011">
+  <meta name="description" content="Coconut TV — Short-drama streaming application.">
+  <title>Coconut TV · 椰子短剧</title>
+  <link rel="icon" href="/coconut-mark.svg" type="image/svg+xml">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/assets/coconut-180.png">
+  <script src="/config.js"></script>
+  <link rel="stylesheet" href="/styles.css?v=10">
+  <link rel="stylesheet" href="/interface.css?v=11">
+  <link rel="stylesheet" href="/stream-layout.css?v=29">
+  <script defer src="/analytics.js?v=1"></script>
+  <script defer src="/app.js?v=39"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+
+  <div class="app-shell" id="app-shell">
+    <div class="main-shell">
+      <!-- Floating Centered Liquid Glass Pill Navbar -->
+      <header class="top-search-bar" id="top-search-bar" hidden>
+        <a href="#home" class="masthead-brand" id="masthead-brand" data-nav="home" aria-label="Coconut TV">
+          <img class="coconut-mark" src="/coconut-mark.svg" width="28" height="28" alt="">
+          <span class="masthead-wordmark" data-i18n="brandName">Coconut TV</span>
+        </a>
+        <nav id="masthead-nav" aria-label="Primary navigation"></nav>
+        <div class="masthead-actions">
+          <button type="button" id="masthead-search" class="icon-btn dock-icon" data-nav="search" aria-label="Search"></button>
+          <button type="button" id="masthead-new" class="icon-btn dock-icon" popovertarget="release-alerts" aria-label="New episodes">
+            <span class="dock-icon-glyph" id="masthead-new-glyph"></span>
+            <span class="bell-badge" id="bell-badge" hidden>0</span>
+          </button>
+          <button type="button" id="masthead-settings" class="icon-btn dock-icon" data-nav="settings" aria-label="Settings"></button>
+          <button type="button" id="language-switch" class="language-switch" aria-label="Change interface language">中文</button>
+        </div>
+      </header>
+
+      <!-- ShuttleTV New Episodes Notification Popover -->
+      <section id="release-alerts" class="release-alerts" popover aria-labelledby="release-alerts-heading">
+        <div class="release-alerts-section">
+          <h2 id="release-alerts-heading" tabindex="-1" data-i18n="newEpisodes">New Episodes</h2>
+          <p class="release-alerts-sub" data-i18n="fromWatchlistWeek">From your watchlist this week</p>
+        </div>
+        <label class="release-alerts-section release-device-row">
+          <div>
+            <strong data-i18n="deviceNotifications">Device notifications</strong>
+            <p class="release-alerts-sub" data-i18n="deviceNotificationsSub">Get new episode alerts on this device</p>
+          </div>
+          <input id="device-alerts-toggle" type="checkbox" role="switch">
+        </label>
+        <div class="release-alerts-section release-list-wrap">
+          <div id="release-alerts-list" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <main id="main-content" tabindex="-1">
+        <!-- VIEW 1: HOME, SERIES, DISCOVER, SEARCH & MY LISTS -->
+        <section class="catalog-section" id="catalog-view" hidden>
+          <section class="hero-slideshow" id="featured-loading" role="status" hidden>
+            <div class="hero-slide">
+              <div class="stream-hero-art featured-loading-art" aria-hidden="true"><span></span></div>
+              <div class="hero-slide-copy">
+                <span data-i18n="loading">Loading…</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Full-Bleed Spotlight Hero Banner -->
+          <section class="hero-slideshow" id="hero-slideshow" aria-roledescription="carousel" aria-label="Featured Series Spotlight" hidden></section>
+
+          <div id="home-resume" hidden></div>
+
+          <aside class="install-tip" id="install-tip" aria-labelledby="install-tip-title" hidden>
+            <img class="coconut-mark" src="/coconut-mark.svg" width="40" height="40" alt="">
+            <div class="install-tip-copy">
+              <strong id="install-tip-title" data-i18n="installApp">Add to Home Screen</strong>
+              <span data-i18n="installTipDescription">Open Coconut TV from your Home Screen.</span>
+            </div>
+            <button type="button" class="compact-btn" data-install-guide data-i18n="installShowSteps">Show me</button>
+            <button type="button" class="icon-btn" id="dismiss-install-tip" aria-label="Dismiss install tip">
+              <span data-icon="close" aria-hidden="true"></span>
+            </button>
+          </aside>
+
+          <!-- Horizontal Content Rows -->
+          <div id="genre-shelves" hidden></div>
+
+          <!-- ShuttleTV Floating Announcement / Quick Jump Capsule -->
+          <div class="mirror-banner-wrap" id="mirror-banner" hidden>
+            <div class="mirror-banner">
+              <img class="coconut-mark mirror-icon" src="/coconut-mark.svg" width="34" height="34" alt="">
+              <div class="mirror-copy">
+                <strong data-i18n="discoveryPrompt">What are you in the mood for?</strong>
+                <span data-i18n="discoveryHint">Find a short drama by genre, type, or popularity.</span>
+              </div>
+              <button type="button" class="mirror-link" data-nav="discover">
+                <span data-i18n="discoverPage">Discover</span>
+                <span data-icon="chevronRight" aria-hidden="true"></span>
+              </button>
+            </div>
+          </div>
+
+          <!-- ShuttleTV Search Page Header -->
+          <div id="search-pane" class="search-pane" hidden>
+            <h1 data-i18n="searchHeadline">What would you like to watch?</h1>
+            <div class="search-mode-tabs" id="search-mode-tabs" role="tablist" aria-label="Search mode">
+              <button type="button" class="search-mode-btn active" data-search-mode="titles" role="tab" aria-selected="true">
+                <span class="mode-icon" data-icon="search"></span>
+                <span data-i18n="searchModeTitles">Titles</span>
+              </button>
+              <button type="button" class="search-mode-btn" data-search-mode="genres" role="tab" aria-selected="false">
+                <span class="mode-icon" data-icon="compass"></span>
+                <span data-i18n="searchModeGenres">Genres &amp; Tags</span>
+              </button>
+
+            </div>
+            <form id="search-form" class="search-pill" role="search">
+              <span id="search-icon" aria-hidden="true"></span>
+              <input id="search-input" maxlength="200" type="search" autocomplete="off" placeholder="Search for short dramas &amp; series..." aria-label="Search titles">
+              <button type="button" id="search-clear-btn" class="search-clear-btn" aria-label="Clear search" hidden></button>
+            </form>
+            <div class="search-quick-tags" id="search-quick-tags" hidden></div>
+          </div>
+
+          <!-- My Lists navigation -->
+          <div id="library-header-block" class="library-header-block" hidden>
+            <nav class="library-tabs" id="library-tabs" aria-label="My lists">
+              <button type="button" data-nav="favorite">
+                <span class="tab-icon" data-icon="list"></span>
+                <span data-i18n="watchlist">Watchlist</span>
+                <span class="tab-count" id="watchlist-tab-count">0</span>
+              </button>
+              <button type="button" data-nav="folders">
+                <span class="tab-icon" data-icon="folder"></span>
+                <span data-i18n="folders">Folders</span>
+              </button>
+              <button type="button" data-nav="history">
+                <span class="tab-icon" data-icon="history"></span>
+                <span data-i18n="history">History</span>
+              </button>
+            </nav>
+          </div>
+
+          <section id="folder-pane" class="folder-pane" hidden></section>
+          <div class="library-subfilters" id="library-subfilters" hidden>
+            <div class="library-filter-pills">
+              <button type="button" class="lib-pill active" data-lib-type="all" data-i18n="allFilter">All</button>
+              <button type="button" class="lib-pill" data-lib-type="live">
+                <span class="pill-icon" data-icon="film"></span>
+                <span data-i18n="live">Live Action</span>
+              </button>
+              <button type="button" class="lib-pill" data-lib-type="animation">
+                <span class="pill-icon" data-icon="tv"></span>
+                <span data-i18n="animation">Anime</span>
+              </button>
+              <button type="button" class="lib-pill" id="library-sort-toggle">
+                <span class="pill-icon" data-icon="sort"></span>
+                <span id="library-sort-label">Newest</span>
+              </button>
+            </div>
+            <button type="button" class="new-folder-trigger" id="new-folder-quick-btn">
+              <span class="pill-icon" data-icon="folderPlus"></span>
+              <span data-i18n="newFolderBtn">New Folder</span>
+            </button>
+          </div>
+
+          <!-- Browse header and filters -->
+          <div class="browse-header" id="browse-header">
+            <div class="browse-top-row">
+              <div class="browse-title-wrap">
+                <h1 id="page-title">Browse</h1>
+                <span class="result-badge" id="result-count"></span>
+              </div>
+
+              <div class="unified-control-bar catalog-actions" id="unified-control-bar" hidden>
+                <button type="button" class="catalog-action" id="catalog-filters-toggle" aria-controls="filters" aria-expanded="false">
+                  <span class="catalog-action-icon" data-icon="sliders" aria-hidden="true"></span>
+                  <span data-i18n="catalogFilters">Filters</span>
+                  <span class="catalog-filter-count" id="catalog-filter-count" hidden></span>
+                  <span class="catalog-action-chevron" data-icon="chevronDown" aria-hidden="true"></span>
+                </button>
+
+                <div class="custom-select" id="sort-dropdown" data-value="hot_score">
+                  <button type="button" class="custom-select-trigger" aria-expanded="false" aria-label="Sort order">
+                    <span class="custom-select-value" id="sort-dropdown-label">Most Popular</span>
+                    <span class="custom-select-chevron" aria-hidden="true"></span>
+                  </button>
+                  <div class="custom-select-menu" id="sort-dropdown-menu" hidden></div>
+                </div>
+
+                <div class="browse-controls catalog-filter-panel" id="filters" aria-labelledby="catalog-filters-title" role="group" hidden>
+                  <div class="catalog-filter-heading">
+                    <strong id="catalog-filters-title" data-i18n="catalogFilters">Filters</strong>
+                    <button type="button" class="catalog-filter-reset" id="catalog-filter-reset" data-i18n="resetCatalogFilters" hidden>Reset</button>
+                  </div>
+
+                  <div class="catalog-filter-row" id="catalog-type-row">
+                    <span id="catalog-type-label" data-i18n="catalogType">Type</span>
+                    <div class="custom-select" id="type-dropdown" data-value="all">
+                      <button type="button" class="custom-select-trigger" aria-expanded="false" aria-labelledby="catalog-type-label type-dropdown-label">
+                        <span class="custom-select-value" id="type-dropdown-label">All types</span>
+                        <span class="custom-select-chevron" aria-hidden="true"></span>
+                      </button>
+                      <div class="custom-select-menu" id="type-dropdown-menu" hidden></div>
+                    </div>
+                  </div>
+                  <div class="catalog-filter-row" id="catalog-genre-row">
+                    <span id="catalog-genre-label" data-i18n="catalogGenre">Genre</span>
+                    <div class="custom-select" id="genre-dropdown" data-value="">
+                      <button type="button" class="custom-select-trigger" aria-expanded="false" aria-labelledby="catalog-genre-label genre-dropdown-label">
+                        <span class="custom-select-value" id="genre-dropdown-label">All genres</span>
+                        <span class="custom-select-chevron" aria-hidden="true"></span>
+                      </button>
+                      <div class="custom-select-menu" id="genre-dropdown-menu" hidden></div>
+                    </div>
+                  </div>
+                  <button type="button" id="surprise-button" class="catalog-surprise">
+                    <span class="catalog-action-icon" data-icon="shuffle" aria-hidden="true"></span>
+                    <span data-i18n="surprise">Surprise Me</span>
+                    <span class="catalog-action-chevron" data-icon="chevronRight" aria-hidden="true"></span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="catalog-types" id="catalog-types" role="group" aria-labelledby="page-title" hidden>
+            <button type="button" data-catalog-type="all" data-i18n="allFilter">All</button>
+            <button type="button" data-catalog-type="live" data-i18n="live">Live Action</button>
+            <button type="button" data-catalog-type="animation" data-i18n="animation">Animation</button>
+            <button type="button" data-catalog-type="ai" data-i18n="ai">AI</button>
+          </div>
+
+          <div id="catalog" class="poster-grid" data-cols="6" aria-live="polite"></div>
+          <div id="catalog-message" class="catalog-message" hidden></div>
+
+          <div class="pagination-bottom-wrap">
+            <nav class="pagination-bar pagination-bottom catalog-pager" id="pagination-bottom" aria-label="Pagination" hidden>
+              <button type="button" class="page-btn" data-page-action="prev" aria-label="Previous page" disabled>
+                <span data-icon="back" aria-hidden="true"></span>
+              </button>
+              <div class="custom-select drop-up" id="catalog-page-dropdown">
+                <button type="button" class="custom-select-trigger" aria-expanded="false" aria-label="Choose page" aria-describedby="catalog-page-dropdown-label">
+                  <span class="custom-select-value" id="catalog-page-dropdown-label" aria-live="polite">Page 1</span>
+                  <span class="custom-select-chevron" aria-hidden="true"></span>
+                </button>
+                <div class="custom-select-menu" id="catalog-page-dropdown-menu" hidden></div>
+              </div>
+              <button type="button" class="page-btn" data-page-action="next" aria-label="Next page" disabled>
+                <span data-icon="chevronRight" aria-hidden="true"></span>
+              </button>
+            </nav>
+          </div>
+
+          <aside class="advertising" id="ad-slot" aria-labelledby="ad-slot-label" aria-roledescription="carousel" hidden>
+            <div class="ad-slot-heading">
+              <span id="ad-slot-label" data-i18n="advertisingLabel">Advertising space</span>
+              <div class="ad-slot-controls">
+                <button type="button" id="ad-previous" class="icon-btn"><span data-icon="back" aria-hidden="true"></span></button>
+                <button type="button" id="ad-pause" class="icon-btn" aria-pressed="false"></button>
+                <button type="button" id="ad-next" class="icon-btn"><span data-icon="chevronRight" aria-hidden="true"></span></button>
+              </div>
+            </div>
+            <div class="ad-slot-content">
+              <div class="ad-slot-copy">
+                <strong id="ad-title"></strong>
+                <p id="ad-description"></p>
+              </div>
+              <a id="ad-contact" href="tel:+17185095888">
+                <span data-i18n="adContactLabel">Advertising inquiries</span>
+                <strong dir="ltr">718-509-5888</strong>
+              </a>
+            </div>
+          </aside>
+
+          <footer class="stream-footer" id="cinema-footer" hidden>
+            <div class="footer-identity">
+              <a href="#home" class="footer-brand-row" data-nav="home">
+                <img class="coconut-mark" src="/coconut-mark.svg" width="28" height="28" alt="" loading="lazy">
+                <strong data-i18n="brandName">Coconut TV</strong>
+              </a>
+              <p data-i18n="footerTagline">Short dramas, one episode at a time.</p>
+            </div>
+            <nav class="footer-links" aria-label="Footer">
+              <a href="#discover" data-nav="discover" data-i18n="browseNav">Browse</a>
+              <a href="#rank" data-nav="rank" data-i18n="rank">Top Charts</a>
+              <a href="#new" data-nav="new" data-i18n="new">New Releases</a>
+              <a href="#favorite" data-nav="favorite" data-i18n="listNav">My Library</a>
+            </nav>
+          </footer>
+        </section>
+
+        <!-- VIEW 2: SHUTTLETV VAUL-STYLE BOTTOM SHEET SERIES DETAIL DRAWER -->
+        <dialog class="detail-view" id="detail-view" closedby="any" aria-labelledby="detail-title" hidden>
+          <div class="drawer-handle-bar" aria-hidden="true">
+            <span class="drawer-handle-pill"></span>
+          </div>
+          <div class="page-nav-bar">
+            <button type="button" class="glass-nav-btn" id="detail-back-btn" aria-label="Close">
+              <span class="btn-icon" id="detail-back-icon" aria-hidden="true"></span>
+            </button>
+          </div>
+
+          <div class="detail-hero-card" id="detail-hero-card">
+            <div class="detail-hero-backdrop-wrap" aria-hidden="true">
+              <img id="detail-backdrop-img" class="detail-backdrop-img" alt="" decoding="async">
+              <div class="detail-hero-scrim"></div>
+            </div>
+
+            <div class="detail-hero-content">
+              <div class="detail-info">
+                <h1 class="detail-title" id="detail-title"></h1>
+                <div class="detail-genre-line" id="detail-genre-line"></div>
+                <div class="detail-badges" id="detail-badges"></div>
+
+                <div class="detail-cta-row">
+                  <button type="button" class="primary-btn detail-watch-btn" id="detail-watch-btn">
+                    <span class="btn-icon" id="detail-play-icon" aria-hidden="true"></span>
+                    <span id="detail-watch-label">Play S1 E1</span>
+                  </button>
+                  <button type="button" class="circle-icon-btn detail-save-btn" id="detail-save-btn" aria-label="Save to Watchlist">
+                    <span class="btn-icon" id="detail-save-icon" aria-hidden="true"></span>
+                    <span id="detail-save-label" class="sr-only">Save to Library</span>
+                  </button>
+                  <details id="detail-folders" class="detail-folders" hidden></details>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-body-wrap">
+            <p class="detail-synopsis" id="detail-synopsis"></p>
+
+            <div class="detail-episodes-card">
+              <div class="detail-section-header">
+                <div class="detail-ep-heading-left">
+                  <h2 data-i18n="episodesDirectory">Episodes</h2>
+                  <p class="detail-section-sub" id="detail-episode-summary"></p>
+                </div>
+
+                <div class="detail-ep-toolbar">
+                  <div class="detail-ep-search-wrap" id="detail-ep-search-wrap" hidden>
+                    <input type="search" id="detail-ep-search-input" maxlength="80" placeholder="Episode #" aria-label="Filter episodes">
+                  </div>
+                  <button type="button" class="ep-tool-btn" id="detail-ep-sort-btn" aria-label="Reverse episode order" title="Sort episodes"></button>
+                  <button type="button" class="ep-tool-btn" id="detail-ep-search-toggle" aria-label="Search episodes" title="Search episodes"></button>
+                  <button type="button" class="ep-tool-btn" id="detail-ep-view-toggle" aria-label="Toggle list or grid view" title="Switch view"></button>
+                  <button type="button" class="ep-mark-watched-btn" id="detail-mark-all-watched">
+                    <span class="btn-icon" id="detail-mark-watched-icon" aria-hidden="true"></span>
+                    <span data-i18n="markAllWatched">Mark all watched</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="episode-ranges" id="detail-episode-ranges" hidden></div>
+              <button type="button" class="secondary-btn compact-btn" id="detail-episodes-retry" data-i18n="tryAgain" hidden>Try again</button>
+              <div class="detail-episode-grid is-list-view" id="detail-episode-grid"></div>
+            </div>
+
+            <!-- More Like This Recommendations -->
+            <div class="detail-recommendations-card" id="detail-recommendations-card" hidden>
+              <h2 data-i18n="moreLikeThis">More Like This</h2>
+              <div class="detail-recommendations-grid" id="detail-recommendations-grid"></div>
+            </div>
+          </div>
+        </dialog>
+
+        <!-- VIEW 3: FULL-PAGE CINEMA PLAYER WITH REAL-TIME NEURAL 4K UPSCALER -->
+        <section class="player-view" id="player-view" hidden>
+          <div class="player-page-layout">
+            <div class="watch-area">
+              <div class="video-stage" id="video-stage" data-fit="contain">
+                <header class="player-page-header">
+                  <button type="button" class="icon-btn" id="player-to-detail" aria-label="Go back"><span class="btn-icon" id="player-back-icon" aria-hidden="true"></span></button>
+                  <div class="player-heading">
+                    <strong id="player-title"></strong>
+                    <span id="player-episode-label"></span>
+                  </div>
+                  <div class="player-header-actions">
+                    <button type="button" class="icon-btn player-ctrl-btn" id="pip-toggle" aria-label="Picture in picture"></button>
+                    <button type="button" class="icon-btn player-ctrl-btn" id="cast-toggle" aria-label="Cast to device" hidden></button>
+                    <button type="button" class="icon-btn player-ctrl-btn" id="next-episode" aria-label="Next episode"></button>
+                    <button type="button" class="icon-btn player-ctrl-btn" id="player-favorite" aria-label="Save to library"></button>
+                  </div>
+                </header>
+                <video id="video" crossorigin="anonymous" playsinline preload="metadata"></video>
+                <canvas id="upscale-canvas" class="upscale-canvas" width="1" height="1" aria-hidden="true" hidden></canvas>
+
+                <div class="stream-hud" id="stream-hud" hidden>
+                  <div class="hud-row"><span data-i18n="hudResolution">Resolution</span><strong id="hud-res">—</strong></div>
+                  <div class="hud-row"><span data-i18n="hudUpscaler">Video upscaling</span><strong id="hud-upscaler">Active</strong></div>
+                  <div class="hud-row"><span data-i18n="hudCodec">Codec</span><strong id="hud-codec">H.264 / AAC</strong></div>
+                  <div class="hud-row"><span data-i18n="hudBuffer">Buffer</span><strong id="hud-buffer">0.0s</strong></div>
+                  <div class="hud-row"><span data-i18n="hudBitrate">Bitrate</span><strong id="hud-bitrate">—</strong></div>
+                </div>
+
+                <div class="video-placeholder" id="video-placeholder" hidden>
+                  <img id="player-cover" alt="" fetchpriority="low">
+                  <div class="placeholder-shade"></div>
+                  <button type="button" class="big-play" id="start-play" aria-label="Play episode"></button>
+                </div>
+
+                <!-- Custom Cinema Buffering & State Screen -->
+                <div class="player-state" id="player-state" hidden>
+                  <img class="player-load-art" id="player-state-art" alt="">
+                  <div class="player-state-scrim" aria-hidden="true"></div>
+                  <div class="buffer-card">
+                    <div class="buffer-orbital" aria-hidden="true">
+                      <span class="orbital-ring orbital-outer"></span>
+                    </div>
+                    <strong id="player-state-title">Loading stream…</strong>
+                    <p id="player-state-description">Buffering video…</p>
+                    <div class="buffer-bar-track" aria-hidden="true">
+                      <span class="buffer-bar-fill"></span>
+                    </div>
+                    <button type="button" class="primary-btn" id="retry-play" hidden></button>
+                  </div>
+                </div>
+
+                <div class="playback-tools" id="playback-tools" role="group" aria-label="Playback controls">
+                  <div class="player-progress">
+                    <span id="playback-time">0:00</span>
+                    <input type="range" id="playback-seek" aria-label="Playback position" min="0" max="1" step="0.1" value="0" disabled>
+                    <span id="playback-duration">0:00</span>
+                  </div>
+                  <div class="player-controls-row">
+                    <div class="playback-cluster">
+                      <button type="button" class="icon-btn player-ctrl-btn" id="play-toggle" aria-label="Play"></button>
+                      <button type="button" class="icon-btn player-ctrl-btn" id="previous-episode" aria-label="Previous episode"></button>
+                      <button type="button" class="icon-btn player-ctrl-btn" id="seek-back" aria-label="Seek backward"></button>
+                      <button type="button" class="icon-btn player-ctrl-btn" id="seek-forward" aria-label="Seek forward"></button>
+                      <button type="button" class="icon-btn player-ctrl-btn" id="mute-toggle" aria-label="Mute"></button>
+                      <input id="playback-volume" type="range" aria-label="Volume" min="0" max="1" step="0.05" value="1">
+                      <span class="playing-position" id="playing-position" hidden></span>
+                    </div>
+
+                    <div class="playback-cluster playback-controls-right">
+                      <span class="stream-badge" id="active-stream-badge"></span>
+
+                      <button type="button" class="icon-btn player-ctrl-btn" id="player-episodes-toggle" aria-label="Episodes" aria-controls="player-episodes" aria-expanded="false"></button>
+                      <div class="custom-select drop-up" id="player-captions" hidden>
+                        <button type="button" class="custom-select-trigger" aria-expanded="false" aria-haspopup="listbox" aria-controls="player-captions-menu" aria-label="Subtitles">
+                          <span class="custom-select-value" id="player-captions-label"></span>
+                          <span class="custom-select-chevron" aria-hidden="true"></span>
+                        </button>
+                        <div class="custom-select-menu" id="player-captions-menu" hidden></div>
+                      </div>
+                      <button type="button" class="icon-btn player-ctrl-btn" id="stream-settings-toggle" aria-label="Player settings" aria-controls="stream-settings-popover" aria-expanded="false"></button>
+                      <button type="button" class="icon-btn player-ctrl-btn" id="fullscreen-toggle" aria-label="Fullscreen"></button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="stream-settings-popover" id="stream-settings-popover" role="group" aria-labelledby="stream-settings-title" hidden>
+                  <div class="popover-header">
+                    <strong id="stream-settings-title" data-i18n="playerViewOptions">Player settings</strong>
+                  </div>
+                  <div class="popover-row player-select-row">
+                    <span data-i18n="videoQuality">Stream quality</span>
+                    <div class="custom-select" id="quality-dropdown" data-value="auto">
+                      <button type="button" class="custom-select-trigger" aria-expanded="false" aria-label="Stream quality">
+                        <span class="custom-select-value" id="quality-dropdown-label">Auto</span>
+                        <span class="custom-select-chevron" aria-hidden="true"></span>
+                      </button>
+                      <div class="custom-select-menu" id="quality-dropdown-menu" hidden></div>
+                    </div>
+                  </div>
+
+                  <div class="popover-row player-select-row">
+                    <span data-i18n="playbackSpeed">Speed</span>
+                    <div class="custom-select" id="speed-dropdown" data-value="1">
+                      <button type="button" class="custom-select-trigger" aria-expanded="false" aria-label="Playback speed">
+                        <span class="custom-select-value" id="speed-dropdown-label">1.0×</span>
+                        <span class="custom-select-chevron" aria-hidden="true"></span>
+                      </button>
+                      <div class="custom-select-menu" id="speed-dropdown-menu" hidden></div>
+                    </div>
+                  </div>
+
+                  <div class="player-upscale-options" id="player-upscale-options">
+                    <div class="player-upscale-heading">
+                      <strong data-i18n="neuralEnable">Video upscaling</strong>
+                      <span id="player-upscale-status" aria-live="polite"></span>
+                    </div>
+                    <div class="mini-segmented" id="neural-segmented" role="group" aria-labelledby="player-upscale-options-label">
+                      <span class="sr-only" id="player-upscale-options-label" data-i18n="neuralPresetLabel">Output target</span>
+                      <button type="button" data-neural-opt="off" aria-pressed="true" data-i18n="neuralOff">Off</button>
+                      <button type="button" data-neural-opt="balanced" aria-pressed="false" data-i18n="neuralBalanced">1440p</button>
+                      <button type="button" data-neural-opt="ultra" aria-pressed="false" data-i18n="neuralUltra">4K</button>
+                    </div>
+                    <p data-i18n="upscaleExplainer">Resizes video frames on this device. Stream quality and source detail stay the same.</p>
+                  </div>
+
+                  <div class="popover-row">
+                    <span data-i18n="videoFit">Video Fit</span>
+                    <div class="mini-segmented" id="fit-segmented">
+                      <button type="button" data-fit-opt="contain" class="active" data-i18n="fitContain">Fit</button>
+                      <button type="button" data-fit-opt="cover" data-i18n="fitCover">Fill</button>
+                      <button type="button" data-fit-opt="zoom" data-i18n="fitZoom">Wide</button>
+                    </div>
+                  </div>
+                  <div class="popover-row">
+                    <span data-i18n="seekStep">Skip Step</span>
+                    <div class="mini-segmented" id="seek-segmented">
+                      <button type="button" data-seek-opt="5">5s</button>
+                      <button type="button" data-seek-opt="10" class="active">10s</button>
+                      <button type="button" data-seek-opt="15">15s</button>
+                    </div>
+                  </div>
+                  <label class="popover-toggle">
+                    <span data-i18n="loopEpisode">Loop Current Episode</span>
+                    <input id="loop-episode" type="checkbox" role="switch">
+                  </label>
+                  <label class="popover-toggle">
+                    <span data-i18n="streamStats">Stream Diagnostics HUD</span>
+                    <input id="hud-toggle" type="checkbox" role="switch">
+                  </label>
+                </div>
+                <section class="next-up-panel" id="next-up-panel" aria-labelledby="next-up-heading" hidden>
+                  <div class="next-up-copy" role="status">
+                    <span data-i18n="nextUp">Next up</span>
+                    <strong id="next-up-heading"></strong>
+                  </div>
+                  <div class="next-up-actions">
+                    <button type="button" id="next-up-cancel" data-i18n="cancelNextUp">Cancel</button>
+                    <button type="button" id="next-up-play" data-i18n="playNextUp">Play now</button>
+                  </div>
+                  <div class="next-up-progress" id="next-up-progress" aria-hidden="true" hidden></div>
+                </section>
+                <aside class="episodes-panel" id="player-episodes" aria-labelledby="player-episodes-title" hidden>
+                  <div class="episodes-heading">
+                    <div><h2 id="player-episodes-title" data-i18n="episodes">Episodes</h2><span id="episode-count"></span></div>
+                    <button type="button" class="icon-btn" id="player-episodes-close" aria-label="Close"></button>
+                  </div>
+                  <div class="episode-picker-tools">
+                    <div class="episode-ranges" id="episode-ranges" hidden></div>
+                    <form class="episode-jump" id="episode-jump" hidden>
+                      <label for="episode-jump-input" class="sr-only" data-i18n="jumpToEpisode">Jump to episode</label>
+                      <input type="text" id="episode-jump-input" inputmode="numeric" pattern="[0-9]+" maxlength="6" autocomplete="off" required placeholder="Episode number">
+                      <button type="submit" data-i18n="goToEpisode">Go</button>
+                    </form>
+                    <p class="episode-jump-error" id="episode-jump-error" role="status" hidden></p>
+                  </div>
+                  <div class="episode-list" id="episode-list"></div>
+                </aside>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 4: SHUTTLETV TWO-COLUMN SETTINGS PAGE -->
+        <section class="settings-view" id="settings-view" hidden>
+          <div class="settings-layout">
+            <aside class="settings-sidebar">
+              <nav id="settings-sections" class="settings-sections" aria-label="Settings sections"></nav>
+            </aside>
+
+            <div class="settings-main">
+              <div class="settings-page-header">
+                <div class="settings-title-row">
+                  <span class="settings-header-icon" id="settings-header-icon" aria-hidden="true"></span>
+                  <h1 data-i18n="settings">Settings</h1>
+                </div>
+                <button type="button" class="secondary-btn" id="reset-defaults-btn" data-i18n="resetDefaults">Reset Defaults</button>
+              </div>
+
+              <div class="settings-grid">
+                <div class="settings-card" id="settings-card-app">
+                  <div class="settings-card-head">
+                    <h2 class="settings-card-title" data-i18n="appSettings" data-section-icon="refresh">App</h2>
+                  </div>
+                  <div class="settings-group">
+                    <div class="settings-row">
+                      <div class="settings-label">
+                        <strong data-i18n="refreshApp">Refresh app</strong>
+                        <small data-i18n="refreshAppDescription">Reload Coconut TV to get the latest version.</small>
+                      </div>
+                      <button type="button" class="secondary-btn compact-btn" data-app-refresh data-i18n="refreshAction">Refresh</button>
+                    </div>
+                    <div class="settings-row" id="install-settings-row" hidden>
+                      <div class="settings-label">
+                        <strong data-i18n="installApp">Add to Home Screen</strong>
+                      </div>
+                      <button type="button" class="secondary-btn compact-btn" data-install-guide data-i18n="installShowSteps">Show me</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 1. Playback Section -->
+                <div class="settings-card" id="settings-card-playback">
+                  <div class="settings-card-head">
+                    <h2 class="settings-card-title" data-i18n="playbackSection" data-section-icon="play">Playback</h2>
+                    <p class="settings-card-sub" data-i18n="playbackSectionSub">Configure your video player preferences</p>
+                  </div>
+                  <div class="settings-group">
+                    <div class="settings-row">
+                      <div class="settings-label">
+                        <strong data-i18n="defaultQuality">Preferred Quality</strong>
+                        <small data-i18n="defaultQualityDesc">Default video quality when available</small>
+                      </div>
+                      <div class="custom-select" id="default-quality-dropdown" data-value="auto">
+                        <button type="button" class="custom-select-trigger" aria-expanded="false" aria-label="Default video resolution">
+                          <span class="custom-select-value" id="default-quality-dropdown-label">Auto</span>
+                          <span class="custom-select-chevron" aria-hidden="true"></span>
+                        </button>
+                        <div class="custom-select-menu" id="default-quality-dropdown-menu" hidden></div>
+                      </div>
+                    </div>
+
+                    <div class="settings-row">
+                      <div class="settings-label">
+                        <strong data-i18n="seekStep">Seek Time</strong>
+                        <small data-i18n="seekStepDesc">Seconds to skip forwards or backwards</small>
+                      </div>
+                      <div class="segmented-control" id="settings-seek-segmented">
+                        <button type="button" data-seek-opt="5">5s</button>
+                        <button type="button" data-seek-opt="10" class="active">10s</button>
+                        <button type="button" data-seek-opt="15">15s</button>
+                        <button type="button" data-seek-opt="30">30s</button>
+                      </div>
+                    </div>
+
+                    <div class="settings-row">
+                      <div class="settings-label">
+                        <strong data-i18n="defaultSpeed">Default Playback Speed</strong>
+                        <small data-i18n="defaultSpeedDesc">Initial speed for episode playback</small>
+                      </div>
+                      <div class="custom-select" id="default-speed-dropdown" data-value="1">
+                        <button type="button" class="custom-select-trigger" aria-expanded="false" aria-label="Default playback speed">
+                          <span class="custom-select-value" id="default-speed-dropdown-label">1.0×</span>
+                          <span class="custom-select-chevron" aria-hidden="true"></span>
+                        </button>
+                        <div class="custom-select-menu" id="default-speed-dropdown-menu" hidden></div>
+                      </div>
+                    </div>
+
+                    <label class="settings-row settings-toggle-row">
+                      <div class="settings-label">
+                        <strong data-i18n="autoNext">Auto Next Episode</strong>
+                        <small data-i18n="autoNextDesc">Automatically play the next episode when one ends</small>
+                      </div>
+                      <input id="settings-autoplay" type="checkbox" checked role="switch">
+                    </label>
+
+                    <label class="settings-row settings-toggle-row">
+                      <div class="settings-label">
+                        <strong data-i18n="skipIntro">Skip Intro Automatically</strong>
+                        <small data-i18n="skipIntroDesc">Automatically skip opening intro sequences when detected</small>
+                      </div>
+                      <input id="settings-skip-intro" type="checkbox" role="switch">
+                    </label>
+
+                    <div class="settings-row">
+                      <div class="settings-label">
+                        <strong data-i18n="bufferMode">Prioritize Server &amp; Buffer Profile</strong>
+                        <small data-i18n="bufferModeDesc">Use the fastest streaming profile for continuous playback</small>
+                      </div>
+                      <div class="custom-select" id="default-buffer-dropdown" data-value="balanced">
+                        <button type="button" class="custom-select-trigger" aria-expanded="false" aria-label="Stream buffer profile">
+                          <span class="custom-select-value" id="default-buffer-dropdown-label">Balanced</span>
+                          <span class="custom-select-chevron" aria-hidden="true"></span>
+                        </button>
+                        <div class="custom-select-menu" id="default-buffer-dropdown-menu" hidden></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 2. Appearance Section -->
+                <div class="settings-card" id="settings-card-appearance">
+                  <div class="settings-card-head">
+                    <h2 class="settings-card-title" data-i18n="appearanceSection" data-section-icon="palette">Appearance</h2>
+                    <p class="settings-card-sub" data-i18n="appearanceSectionSub">Configure visual effects and appearance</p>
+                  </div>
+                  <div class="settings-group">
+                    <div class="settings-row">
+                      <div class="settings-label">
+                        <strong data-i18n="accentColor">Accent Color</strong>
+                        <small data-i18n="accentColorDesc">Choose your interface highlight and ambient glow color</small>
+                      </div>
+                      <div id="accent-options" class="accent-options"></div>
+                    </div>
+
+                    <div class="settings-row">
+                      <div class="settings-label">
+                        <strong data-i18n="appearance">Theme Mode</strong>
+                        <small data-i18n="appearanceDesc">Choose a theme or follow your device</small>
+                      </div>
+                      <div class="segmented-control" id="theme-segmented">
+                        <button type="button" data-theme-opt="dark" data-i18n="dark">Dark</button>
+                        <button type="button" data-theme-opt="light" data-i18n="light">Light</button>
+                        <button type="button" data-theme-opt="system" data-i18n="system">Auto</button>
+                      </div>
+                    </div>
+
+                    <div class="settings-row">
+                      <div class="settings-label">
+                        <strong data-i18n="language">Interface Language</strong>
+                        <small data-i18n="languageDesc">Display language for menus and labels</small>
+                      </div>
+                      <div class="segmented-control" id="lang-segmented">
+                        <button type="button" data-lang-opt="system" data-i18n="systemLanguage">Device language</button>
+                        <button type="button" data-lang-opt="en">English</button>
+                        <button type="button" data-lang-opt="zh">中文</button>
+                      </div>
+                    </div>
+
+                    <label class="settings-row settings-toggle-row">
+                      <div class="settings-label">
+                        <strong data-i18n="liquidGlass">Liquid Glass Effect</strong>
+                        <small data-i18n="liquidGlassDesc">Enable translucent glass surfaces and ambient liquid shader</small>
+                      </div>
+                      <input id="settings-liquid-glass" type="checkbox" role="switch">
+                    </label>
+
+                    <label class="settings-row settings-toggle-row">
+                      <div class="settings-label">
+                        <strong data-i18n="hideWatched">Hide Watched Content</strong>
+                        <small data-i18n="hideWatchedDesc">Hide series you have already watched from discovery grids</small>
+                      </div>
+                      <input id="settings-hide-watched" type="checkbox" role="switch">
+                    </label>
+
+                    <label class="settings-row settings-toggle-row">
+                      <div class="settings-label">
+                        <strong data-i18n="spoilerMode">Spoiler Mode</strong>
+                        <small data-i18n="spoilerModeDesc">Hide episode thumbnails, descriptions, and plot details</small>
+                      </div>
+                      <input id="settings-spoilers" type="checkbox" role="switch">
+                    </label>
+
+                    <label class="settings-row settings-toggle-row">
+                      <div class="settings-label">
+                        <strong data-i18n="reduceMotion">Reduce Motion</strong>
+                        <small data-i18n="reduceMotionDesc">Disable background shader motion and reduce transitions</small>
+                      </div>
+                      <input id="settings-reduce-motion" type="checkbox" role="switch">
+                    </label>
+
+                    <div class="settings-row">
+                      <div class="settings-label">
+                        <strong data-i18n="gridDensity">Poster Grid Density</strong>
+                        <small data-i18n="gridDensityDesc">Columns per row on desktop</small>
+                      </div>
+                      <div class="segmented-control" id="cols-segmented">
+                        <button type="button" data-cols-opt="4">4 Cols</button>
+                        <button type="button" data-cols-opt="5">5 Cols</button>
+                        <button type="button" data-cols-opt="6" class="active">6 Cols</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 3. Home Layout Section -->
+                <div class="settings-card" id="settings-card-layout">
+                  <div class="settings-card-head">
+                    <h2 class="settings-card-title" data-i18n="homeLayout" data-section-icon="grid">Home Layout</h2>
+                    <p class="settings-card-sub" data-i18n="homeLayoutSub">Reorder or toggle visibility of rows on your Home page</p>
+                  </div>
+                  <div class="settings-group" id="home-layout-options"></div>
+                </div>
+
+                <!-- 4. Subtitles & Video Upscaling Section -->
+                <div class="settings-card" id="settings-card-neural">
+                  <div class="settings-card-head">
+                    <h2 class="settings-card-title" data-i18n="neuralSection" data-section-icon="captions">Video upscaling</h2>
+                    <p class="settings-card-sub" data-i18n="neuralSectionSub">Resize decoded video on this device, up to the chosen output target.</p>
+                  </div>
+                  <div class="settings-group">
+                    <div class="settings-row">
+                      <div class="settings-label">
+                        <strong data-i18n="neuralPresetLabel">Output target</strong>
+                        <small data-i18n="neuralPresetDesc">4K uses more GPU power. Available output depends on the video and device.</small>
+                      </div>
+                      <div class="custom-select" id="default-neural-dropdown" data-value="off">
+                        <button type="button" class="custom-select-trigger" aria-expanded="false" aria-label="Video upscaling mode">
+                          <span class="custom-select-value" id="default-neural-dropdown-label">Off</span>
+                          <span class="custom-select-chevron" aria-hidden="true"></span>
+                        </button>
+                        <div class="custom-select-menu" id="default-neural-dropdown-menu" hidden></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 5. Library & Storage Section -->
+                <div class="settings-card" id="settings-card-library">
+                  <div class="settings-card-head">
+                    <h2 class="settings-card-title" data-i18n="ambientSection" data-section-icon="link">Library &amp; Integrations</h2>
+                    <p class="settings-card-sub" data-i18n="ambientSectionSub">Manage preloading, watch history, and saved lists</p>
+                  </div>
+                  <div class="settings-group">
+                    <label class="settings-row settings-toggle-row">
+                      <div class="settings-label">
+                        <strong data-i18n="preloadPages">Lazy-Load Next 3 Pages</strong>
+                        <small data-i18n="preloadPagesDesc">Automatically prefetch the next 3 catalog pages in the background</small>
+                      </div>
+                      <input id="settings-preload-pages" type="checkbox" checked role="switch">
+                    </label>
+
+                    <div class="settings-row">
+                      <div class="settings-label">
+                        <strong data-i18n="watchHistoryCount">Watch History</strong>
+                        <small id="settings-history-count">0 titles</small>
+                      </div>
+                      <button type="button" class="secondary-btn compact-btn" id="clear-history-btn" data-i18n="clearHistory">Clear History</button>
+                    </div>
+
+                    <div class="settings-row">
+                      <div class="settings-label">
+                        <strong data-i18n="savedLibraryCount">Saved Watchlist</strong>
+                        <small id="settings-saved-count">0 titles</small>
+                      </div>
+                      <button type="button" class="secondary-btn compact-btn" id="clear-saved-btn" data-i18n="clearSaved">Clear Saved</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation" hidden>
+    <div class="mobile-nav-links" id="mobile-nav-links"></div>
+    <button type="button" id="mobile-more" popovertarget="mobile-utilities">
+      <span class="mobile-nav-icon" data-icon="more" aria-hidden="true"></span>
+      <span data-i18n="mobileMore">More</span>
+      <span class="mobile-dock-dot" id="mobile-dock-dot" aria-hidden="true" hidden></span>
+    </button>
+  </nav>
+  <section class="mobile-utilities" id="mobile-utilities" popover aria-labelledby="mobile-more">
+    <button type="button" id="mobile-settings" data-nav="settings">
+      <span data-icon="settings" aria-hidden="true"></span>
+      <span data-i18n="settings">Settings</span>
+    </button>
+    <button type="button" id="mobile-episode-alerts" aria-controls="release-alerts">
+      <span data-icon="bell" aria-hidden="true"></span>
+      <span data-i18n="newEpisodes">New Episodes</span>
+      <span class="mobile-utility-value" id="mobile-alert-count" aria-hidden="true" hidden></span>
+    </button>
+    <button type="button" id="mobile-language-switch">
+      <span data-icon="language" aria-hidden="true"></span>
+      <span data-i18n="language">Interface Language</span>
+      <span class="mobile-utility-value" id="mobile-language-value">中文</span>
+    </button>
+    <button type="button" id="mobile-install" data-install-guide hidden>
+      <span data-icon="plus" aria-hidden="true"></span>
+      <span data-i18n="installApp">Add to Home Screen</span>
+    </button>
+    <button type="button" data-app-refresh>
+      <span data-icon="refresh" aria-hidden="true"></span>
+      <span data-i18n="refreshApp">Refresh app</span>
+    </button>
+  </section>
+  <dialog class="install-guide" id="install-guide" closedby="any" aria-labelledby="install-guide-title" hidden>
+    <img class="coconut-mark" src="/coconut-mark.svg" width="48" height="48" alt="">
+    <h2 id="install-guide-title" data-i18n="installApp">Add to Home Screen</h2>
+    <ol class="install-steps" data-install-platform="apple" hidden>
+      <li>
+        <div class="install-diagram install-browser" aria-hidden="true">
+          <span class="install-demo-address">
+            <img class="coconut-mark" src="/coconut-mark.svg" width="20" height="20" alt="">
+            <span data-i18n="brandName">Coconut TV</span>
+          </span>
+          <span class="install-demo-target">
+            <span data-icon="share"></span><span data-i18n="installShareAction">Share</span>
+          </span>
+        </div>
+        <p data-i18n="installAppleShare">Open Coconut TV in Safari and tap Share. If Share is hidden, open the page menu first.</p>
+      </li>
+      <li>
+        <div class="install-diagram install-share-sheet" aria-hidden="true">
+          <span class="install-demo-menu-handle"></span>
+          <span class="install-demo-target">
+            <span data-icon="plus"></span><span data-i18n="installApp">Add to Home Screen</span>
+            <span data-icon="chevronRight"></span>
+          </span>
+        </div>
+        <p data-i18n="installAppleHome">Choose Add to Home Screen.</p>
+      </li>
+      <li>
+        <div class="install-diagram install-app-preview" aria-hidden="true">
+          <img class="coconut-mark" src="/coconut-mark.svg" width="32" height="32" alt="">
+          <strong data-i18n="brandName">Coconut TV</strong>
+          <span class="install-demo-target" data-i18n="installAddAction">Add</span>
+          <div class="install-demo-option">
+            <span data-i18n="installOpenAsWebApp">Open as Web App</span>
+            <span class="install-demo-switch"><span data-icon="check"></span></span>
+          </div>
+        </div>
+        <p data-i18n="installAppleAdd">Turn on Open as Web App if shown, then tap Add.</p>
+      </li>
+    </ol>
+    <ol data-install-platform="android" hidden>
+      <li data-i18n="installAndroidMenu">Open your browser’s menu.</li>
+      <li data-i18n="installAndroidAdd">Choose Install app or Add to Home screen, then confirm.</li>
+    </ol>
+    <p data-install-platform="desktop" data-i18n="installDesktopHelp" hidden>Use the install icon in your browser’s address bar. In Safari on Mac, choose File → Add to Dock.</p>
+    <div class="install-guide-actions">
+      <button type="button" class="secondary-btn" id="install-guide-done" data-i18n="installGuideDone" autofocus>Done</button>
+      <button type="button" class="primary-btn" id="install-now" data-i18n="installNow" hidden>Install app</button>
+    </div>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="no-referrer">
+  <title>Studio Insights · Coconut TV</title>
+  <link rel="icon" href="/coconut-mark.svg" type="image/svg+xml">
+  <script src="/config.js"></script>
+  <link rel="stylesheet" href="/studio-insights/insights.css">
+  <script defer src="/studio-insights/insights.js"></script>
+</head>
+<body>
+  <main>
+    <header class="masthead">
+      <a href="/" class="brand"><img src="/coconut-mark.svg" alt="" width="32" height="32"> Coconut TV</a>
+      <button id="lock" type="button" hidden>Lock dashboard</button>
+    </header>
+
+    <section class="unlock" id="unlock">
+      <h1>Studio Insights</h1>
+      <p>Enter your private access key to view traffic, playback, and advertising stats.</p>
+      <form id="access-form">
+        <label for="access-key">Access key</label>
+        <input type="password" id="access-key" autocomplete="off" autocapitalize="none" spellcheck="false" required>
+        <button class="primary" type="submit">View stats</button>
+      </form>
+    </section>
+
+    <p id="status" class="status" role="status" hidden></p>
+    <section id="dashboard" aria-labelledby="dashboard-title" hidden>
+      <div class="page-heading">
+        <div><h1 id="dashboard-title">Studio Insights</h1><p id="updated"></p></div>
+        <div class="range-controls">
+          <div class="range-picker" role="group" aria-label="Reporting range">
+            <button type="button" data-days="7" aria-pressed="false">7 days</button>
+            <button type="button" data-days="30" aria-pressed="true">30 days</button>
+            <button type="button" data-days="90" aria-pressed="false">90 days</button>
+          </div>
+          <button id="refresh" type="button">Refresh</button>
+        </div>
+      </div>
+      <dl id="totals" class="totals"></dl>
+      <section class="surface">
+        <div class="section-heading"><h2>Daily activity</h2><span>UTC</span></div>
+        <div class="chart-legend"><span>Page visits</span><span>Playback starts</span></div>
+        <div id="chart" class="chart" aria-hidden="true"></div>
+        <details class="activity-data">
+          <summary>View daily values</summary>
+          <div class="table-scroll">
+            <table><thead><tr><th scope="col">Date</th><th scope="col">Visits</th><th scope="col">Plays</th></tr></thead><tbody id="daily"></tbody></table>
+          </div>
+        </details>
+      </section>
+      <div class="breakdowns">
+        <section class="surface">
+          <h2>Pages</h2>
+          <div class="table-scroll"><table><thead><tr><th scope="col">Page</th><th scope="col">Visits</th></tr></thead><tbody id="pages"></tbody></table></div>
+        </section>
+        <section class="surface">
+          <h2>Series</h2>
+          <div class="table-scroll"><table><thead><tr><th scope="col">Series</th><th scope="col">Views</th><th scope="col">Plays</th><th scope="col">Completed</th></tr></thead><tbody id="series"></tbody></table></div>
+        </section>
+      </div>
+      <section class="surface">
+        <h2>Advertising</h2>
+        <div class="table-scroll"><table><thead><tr><th scope="col">Slide</th><th scope="col">Impressions</th><th scope="col">Phone taps</th><th scope="col">Tap rate</th></tr></thead><tbody id="ads"></tbody></table></div>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

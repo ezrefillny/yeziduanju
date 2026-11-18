@@ -1,0 +1,21 @@
+{
+  "name": "duanju-studio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server/index.mjs",
+    "dev": "node --watch server/index.mjs",
+    "test": "node --test scripts/audit-regression.mjs",
+    "build": "node scripts/build-frontend.mjs",
+    "check": "node --check server/index.mjs && node --check web/video-resampler.js && node --check web/app.js"
+  },
+  "dependencies": {
+    "heic-convert": "^2.1.0",
+    "hls.js": "^1.6.15",
+    "openhongguo": "file:vendor/openhongguo-0.3.0-6919947.tgz"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "/",
+  "name": "Coconut TV",
+  "short_name": "Coconut TV",
+  "description": "Watch short dramas and pick up where you left off.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0e1011",
+  "theme_color": "#0e1011",
+  "icons": [
+    { "src": "/assets/coconut-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/assets/coconut-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

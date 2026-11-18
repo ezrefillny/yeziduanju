@@ -1,0 +1,16 @@
+services:
+  duanju:
+    build: .
+    ports:
+      - "4173:4173"
+    environment:
+      PORT: "4173"
+      DATA_DIR: /app/data
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
+      MEDIA_WORKERS: ${MEDIA_WORKERS:-1}
+      API_TOKEN: ${API_TOKEN:-}
+    volumes:
+      - duanju-data:/app/data
+    restart: unless-stopped
+volumes:
+  duanju-data:
