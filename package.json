@@ -8,9 +8,11 @@
   },
   "scripts": {
     "start": "node server/index.mjs",
+    "start:local": "node --env-file=.env server/index.mjs",
     "dev": "node --watch server/index.mjs",
     "test": "node --test scripts/audit-regression.mjs",
     "build": "node scripts/build-frontend.mjs",
+    "build:local": "node --env-file=.env scripts/build-frontend.mjs",
     "check": "node --check server/index.mjs && node --check web/video-resampler.js && node --check web/app.js"
   },
   "dependencies": {

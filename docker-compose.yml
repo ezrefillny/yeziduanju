@@ -2,12 +2,19 @@ services:
   duanju:
     build: .
     ports:
-      - "4173:4173"
+      - "${HOST:-127.0.0.1}:${PORT:-4173}:4173"
     environment:
       PORT: "4173"
+      HOST: "0.0.0.0"
       DATA_DIR: /app/data
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
       MEDIA_WORKERS: ${MEDIA_WORKERS:-1}
+      IMAGE_WORKERS: ${IMAGE_WORKERS:-4}
+      MAX_CACHE_JOBS: ${MAX_CACHE_JOBS:-20}
+      CACHE_TTL_SECONDS: ${CACHE_TTL_SECONDS:-3600}
+      ENCODE_TIMEOUT_MS: ${ENCODE_TIMEOUT_MS:-900000}
+      ENCODER_PRESET: ${ENCODER_PRESET:-ultrafast}
+      FFMPEG_PATH: ${FFMPEG_PATH:-ffmpeg}
       API_TOKEN: ${API_TOKEN:-}
     volumes:
       - duanju-data:/app/data

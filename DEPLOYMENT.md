@@ -2,10 +2,14 @@
 
 The browser frontend is prepared for Vercel. The streaming backend needs a persistent Node.js host with FFmpeg; its Dockerfile is included. No service has been provisioned or published.
 
+## Local configuration
+
+With Node.js 20.6 or later, copy `.env.example` to `.env` and run `npm run start:local`. This loads the local configuration and binds the backend to `127.0.0.1:4173` by default. Use `npm run build:local` to load the same file for a frontend build. Leave `PUBLIC_API_ORIGIN` empty when this Node process also serves the website.
+
 ## Vercel frontend
 
 1. Import this directory as the project root. Framework preset: Other. The included `vercel.json` sets the build and output directory.
-2. Set `PUBLIC_API_ORIGIN` to the HTTPS origin of your running streaming backend, for example `https://stream.example.com`. This is public configuration, not a secret. Do not include a trailing path or account credentials.
+2. Under Settings → Environment Variables, set `PUBLIC_API_ORIGIN` as Config for Production. Use the HTTPS origin of your running streaming backend, such as `https://stream.example.com`. Enter only the scheme and hostname, plus the port if needed. Configure the same value for Preview if you plan to test preview deployments against this backend.
 3. Deploy. The build runs `npm run build` and emits `dist/`, including the vendored HLS player.
 4. Set the backend's `ALLOWED_ORIGINS` to the exact Vercel frontend URL. For preview deployments, add each intended preview origin explicitly.
 5. Rebuild after changing `PUBLIC_API_ORIGIN`. The frontend uses the build configuration; browser Settings do not override the backend URL.
@@ -16,7 +20,7 @@ Vercel deployments need a publicly reachable HTTPS backend. A localhost backend 
 
 Run the supplied Docker container on a persistent Linux host. It runs Node.js with FFmpeg and serves both the website and its API when used alone. Mount `/app/data` for device profiles and media cache. Use HTTPS at the host's reverse proxy and set `ALLOWED_ORIGINS` to the frontend origin when separating the two hosts.
 
-Use `docker compose up --build -d` for the included container setup. Access the local website at `http://localhost:4173`. Restrict access to trusted users at your HTTPS proxy before exposing the service publicly: the worker uses real CPU, storage, and upstream requests.
+Use `docker compose up --build -d` for the included container setup. Access the local website at `http://localhost:4173`. Compose uses `HOST` and `PORT` for the published host port. The container listens on `0.0.0.0:4173` and stores data in the named volume mounted at `/app/data`. A reverse proxy on the same host can use the default loopback binding. Restrict access to trusted users at your HTTPS proxy before exposing the service publicly: the worker uses real CPU, storage, and upstream requests.
 
 1080p is offered when supplied by the upstream title. Higher resolutions need more transcoding capacity; benchmark the actual host before increasing worker concurrency. English/Chinese changes interface text; episode audio and titles remain as supplied by the source.
 
