@@ -9,7 +9,6 @@ COPY web ./web
 ENV NODE_ENV=production PORT=4173 DATA_DIR=/app/data
 RUN mkdir /app/data && chown -R node:node /app
 USER node
-VOLUME ["/app/data"]
 EXPOSE 4173
 HEALTHCHECK --interval=30s --timeout=5s CMD node -e "fetch('http://localhost:'+process.env.PORT+'/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
 CMD ["node", "server/index.mjs"]
